@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>3D Okul Simülasyonu - Atatürk Anadolu Lisesi</title>
+  <meta name="description"
+    content="Three.js ile geliştirilmiş detaylı 3D okul ve ders simülasyonu. 3. şahıs karakter kontrolü, dersler, sınavlar, karne sistemi ve mobil dokunmatik kontroller.">
+  <link rel="stylesheet" href="./css/style.css">
+
+  <!-- Three.js ES Module Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+
+<body>
+
+  <!-- 3D Sahne Taşıyıcı -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD & Kullanıcı Arayüzü -->
+  <div id="hud">
+
+    <!-- Üst Bilgi Çubuğu -->
+    <header class="top-bar">
+      <!-- Okul Künyesi -->
+      <div class="school-info-card">
+        <div class="school-badge">🏫</div>
+        <div class="school-title">
+          <span class="school-name">Cumhuriyet Anadolu Lisesi</span>
+          <span class="school-period" id="school-period">09:00 - 1. Ders: Matematik</span>
+        </div>
+      </div>
+
+      <!-- Güncel Hedef / Ders Görevi -->
+      <div class="quest-banner" id="quest-banner">
+        <span class="quest-icon">🎯</span>
+        <div class="quest-details">
+          <span class="quest-label">Sıradaki Ders</span>
+          <span class="quest-text" id="quest-text">Matematik sınıfına (101) git ve derse katıl</span>
+        </div>
+      </div>
+
+      <!-- İstatistikler: Not ve Enerji -->
+      <div class="stats-card">
+        <div class="stat-item">
+          <span class="stat-label">Ortalama</span>
+          <span class="stat-val" id="stat-grade">100</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Enerji</span>
+          <div class="energy-bar-wrap">
+            <div class="energy-bar-fill" id="energy-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Üst Sağ Menü Butonları -->
+      <div class="top-right-group">
+        <button class="hud-btn" id="btn-report" title="Öğrenci Karnesi">
+          <span>🎒</span> Karne
+        </button>
+        <button class="hud-btn" id="btn-bell" title="Zil Çal">
+          <span>🔔</span> Zil Çal
+        </button>
+        <button class="hud-btn" id="btn-mobile-toggle" title="Mobil Mod Kontrolleri Aç/Kapat">
+          <span>📱</span> Mobil Mod
+        </button>
+        <button class="hud-btn active" id="btn-sound" title="Ses Aç/Kapat">
+          <span>🔊</span> Ses: Açık
+        </button>
+      </div>
+    </header>
+
+    <!-- Mini Harita Radar -->
+    <div id="minimap-container">
+      <canvas id="minimap-canvas" width="180" height="180"></canvas>
+      <div class="minimap-legend">KAMPÜS RADARI</div>
+    </div>
+
+    <!-- Masaüstü Kontrol Rehberi -->
+    <div class="controls-guide-box">
+      <div><span class="key-hint">W</span><span class="key-hint">A</span><span class="key-hint">S</span><span
+          class="key-hint">D</span> Yürü</div>
+      <div><span class="key-hint">Shift</span> Koş</div>
+      <div><span class="key-hint">Boşluk</span> Zıpla</div>
+      <div><span class="key-hint">E</span> Etkileşim</div>
+      <div><span class="key-hint">C</span> Otur / Kalk</div>
+      <div><span class="key-hint">Fare</span> Kamera</div>
+    </div>
+
+    <!-- Etkileşim Bildirim Kutusu (Prompt) -->
+    <div id="interaction-prompt">
+      <div class="key-badge">E</div>
+      <div class="prompt-text-group">
+        <span class="prompt-title" id="prompt-title">Etkileşim Noktası</span>
+        <span class="prompt-desc" id="prompt-desc">Etkileşime geçmek için [E] tuşuna bas</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MOBİL MOD KONTROLLERİ (Sanal Joystick & Dokunmatik Butonlar) -->
+  <div id="mobile-controls">
+    <!-- Sol: Sanal Joystick -->
+    <div id="joystick-zone">
+      <div class="joystick-base">
+        <div class="joystick-stick"></div>
+      </div>
+    </div>
+
+    <!-- Sağ: Aksiyon Butonları -->
+    <div id="mobile-action-buttons">
+      <div class="action-btn-row">
+        <button class="mobile-action-btn btn-interact" id="btn-interact">
+          ⚡
+          <span>Etkileşim</span>
+        </button>
+      </div>
+      <div class="action-btn-row">
+        <button class="mobile-action-btn" id="btn-sprint">
+          🏃
+          <span>Koş</span>
+        </button>
+        <button class="mobile-action-btn" id="btn-sit">
+          🪑
+          <span>Otur</span>
+        </button>
+        <button class="mobile-action-btn" id="btn-jump">
+          🦘
+          <span>Zıpla</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BİLDİRİM TOAST ALANI -->
+  <div id="toast-container"></div>
+
+  <!-- ========================================================
+       MODALLAR (DERS/QUIZ, KARNE, DOLAP, NPC)
+  ======================================================== -->
+
+  <!-- 1. Ders & Sınav Modalı -->
+  <div class="modal-overlay" id="lesson-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon" id="lesson-modal-icon">📐</div>
+          <div>
+            <h3 class="modal-title" id="lesson-modal-title">Matematik Dersi</h3>
+            <p class="modal-subtitle" id="lesson-modal-subtitle">Soru Çözümü & Mini Sınav</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" title="Kapat">✕</button>
+      </div>
+
+      <!-- Quiz İlerleme & Soru Alanı -->
+      <div id="quiz-content">
+        <div class="quiz-progress-bar">
+          <div class="quiz-progress-fill" id="quiz-progress-fill"></div>
+        </div>
+
+        <div class="quiz-question-box">
+          <div class="quiz-question-num" id="quiz-q-num">SORU 1 / 3</div>
+          <div class="quiz-question-text" id="quiz-q-text">Soru metni yükleniyor...</div>
+        </div>
+
+        <div class="quiz-options-list" id="quiz-options-list">
+          <!-- Seçenek butonları JavaScript ile dinamik eklenir -->
+        </div>
+      </div>
+
+      <!-- Sınav Tamamlandı Ekranı -->
+      <div class="quiz-result-banner" id="quiz-result-banner">
+        <div style="font-size: 50px;">🎉</div>
+        <div class="quiz-score-badge" id="quiz-score-badge">100 PUAN (A+)</div>
+        <p style="color: #cbd5e1; font-size: 14px;" id="quiz-summary-text">Dersi başarıyla tamamladın!</p>
+        <button class="hud-btn modal-close-btn-action"
+          style="margin-top: 10px; padding: 12px 30px; background: #4f46e5;"
+          onclick="document.getElementById('lesson-modal').classList.remove('active')">
+          Karneme Dön
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Öğrenci Karnesi Modalı -->
+  <div class="modal-overlay" id="report-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon">📜</div>
+          <div>
+            <h3 class="modal-title">Öğrenci Not Çizelgesi (Karne)</h3>
+            <p class="modal-subtitle">2026-2027 Eğitim Öğretim Yılı</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" title="Kapat">✕</button>
+      </div>
+
+      <div class="report-card-container">
+        <div class="student-info-row">
+          <div class="student-avatar-box">🎓</div>
+          <div class="student-meta">
+            <h4>Deniz Yılmaz</h4>
+            <p>Öğrenci No: 1042 • Sınıf: 11-A</p>
+          </div>
+        </div>
+
+        <table class="grades-table">
+          <thead>
+            <tr>
+              <th>Ders Adı</th>
+              <th>Puan</th>
+              <th>Harf Notu</th>
+            </tr>
+          </thead>
+          <tbody id="report-grades-body">
+            <!-- Dinamik doldurulur -->
+          </tbody>
+        </table>
+
+        <div class="report-summary-box">
+          <span style="color: var(--text-muted); font-size: 13px;">Ağırlıklı Not Ortalaması:</span>
+          <span style="color: #10b981; font-size: 18px;" id="report-gpa-val">100 / 100</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Kişisel Dolap (Locker) Modalı -->
+  <div class="modal-overlay" id="locker-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon">🚪</div>
+          <div>
+            <h3 class="modal-title">Öğrenci Dolabı</h3>
+            <p class="modal-subtitle">Kıyafet & Ekipman Özelleştirme</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" title="Kapat">✕</button>
+      </div>
+
+      <div class="locker-customizer-grid">
+        <div>
+          <div class="customizer-section-title">Okul Ceketi / Üniforma Rengi:</div>
+          <div class="color-swatches" id="blazer-swatches"></div>
+        </div>
+
+        <div>
+          <div class="customizer-section-title">Sırt Çantası Rengi:</div>
+          <div class="color-swatches" id="backpack-swatches"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. NPC Diyalog Modalı -->
+  <div class="modal-overlay" id="npc-modal">
+    <div class="modal-card" style="max-width: 460px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon">💬</div>
+          <div>
+            <h3 class="modal-title" id="npc-modal-title">Öğretmen</h3>
+            <p class="modal-subtitle">Okul Rehberi</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" title="Kapat">✕</button>
+      </div>
+
+      <p id="npc-modal-speech" style="font-size: 15px; line-height: 1.6; color: #e2e8f0; margin-bottom: 20px;">
+        Konuşma metni...
+      </p>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button class="hud-btn" style="background: #4f46e5;"
+          onclick="document.getElementById('npc-modal').classList.remove('active')">
+          Tamam, Teşekkürler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ana JavaScript Modülü -->
+  <script type="module" src="./js/main.js"></script>
+</body>
+
+</html>
