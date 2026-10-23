@@ -70,7 +70,7 @@ func _ready() -> void:
 
 	# Bake navigation after the geometry exists; the frame wait lets physics register shapes.
 	await get_tree().physics_frame
-	level.bake_nav()
+	await level.bake_nav()
 	await get_tree().physics_frame
 	monster.patrol_points = level.patrol_points.duplicate()
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

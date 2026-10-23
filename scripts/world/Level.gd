@@ -103,6 +103,10 @@ func _begin_room(room_name: String) -> void:
 
 func bake_nav() -> void:
 	geo.bake_navigation_mesh(false)
+	# Godot 4.7: the region overwrites a same-frame update, so hand the baked mesh
+	# to the navigation server one physics frame later
+	await get_tree().physics_frame
+	NavigationServer3D.region_set_navigation_mesh(geo.get_rid(), geo.navigation_mesh)
 
 
 # ================================================================ scene support

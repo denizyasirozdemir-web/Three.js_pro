@@ -8,7 +8,7 @@ config_version=5
 config/name="Kessler Works"
 config/description="Plant 9 has been dark for forty years. Tonight, you turn the lights back on."
 run/main_scene="res://scenes/Menu.tscn"
-config/features=PackedStringArray("4.3", "Forward Plus")
+config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 

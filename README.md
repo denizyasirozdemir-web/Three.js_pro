@@ -1,10 +1,10 @@
 # KESSLER WORKS — Plant 9
 
-Godot 4.3+ ile yapılmış birinci şahıs endüstriyel korku oyunu. Tüm harita, modeller,
+Godot 4.7 ile yapılmış birinci şahıs endüstriyel korku oyunu. Tüm harita, modeller,
 ışıklar ve **63 ses efekti** kodla üretilir — harici asset gerekmez.
 
 ## Nasıl çalıştırılır
-1. Godot 4.3 (veya daha yeni 4.x, **Forward+**) indir: https://godotengine.org
+1. Godot 4.7 (Forward+) indir: https://godotengine.org
 2. Godot'u aç → **Import** → bu klasördeki `project.godot` dosyasını seç.
 3. **F5** (Play). İlk açılışta ses dosyaları otomatik içe aktarılır.
 
