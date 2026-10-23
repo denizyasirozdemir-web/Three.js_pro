@@ -1,6 +1,7 @@
 extends Control
 ## Title screen, how-to-play panel and the story intro before the game starts.
 
+const UI := preload("res://scripts/ui/UI.gd")
 const BG_SHADER := """
 shader_type canvas_item;
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -60,8 +61,7 @@ var _skip := false
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().paused = false
-	font_main = SystemFont.new()
-	(font_main as SystemFont).font_names = PackedStringArray(["Bahnschrift", "DIN Alternate", "Roboto Condensed", "Arial Narrow", "DejaVu Sans Condensed", "Liberation Sans Narrow", "Arial", "Sans-Serif"])
+	font_main = UI.font(UI.MAIN_FONTS)
 
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -123,47 +123,11 @@ func _ready() -> void:
 
 
 func _label(text: String, size: int, col: Color) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.add_theme_font_override("font", font_main)
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", col)
-	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
-	l.add_theme_constant_override("shadow_offset_x", 3)
-	l.add_theme_constant_override("shadow_offset_y", 3)
-	return l
-
-
-func _style(bg: Color, border: Color) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = bg
-	s.border_color = border
-	s.set_border_width_all(1)
-	s.set_corner_radius_all(2)
-	s.content_margin_left = 16
-	s.content_margin_right = 16
-	s.content_margin_top = 8
-	s.content_margin_bottom = 8
-	return s
+	return UI.label(text, size, col, font_main, 3)
 
 
 func _button(text: String, cb: Callable) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = Vector2(340, 54)
-	b.add_theme_font_override("font", font_main)
-	b.add_theme_font_size_override("font_size", 26)
-	b.add_theme_color_override("font_color", Color(0.75, 0.72, 0.65))
-	b.add_theme_color_override("font_hover_color", Color(1, 0.3, 0.2))
-	b.add_theme_stylebox_override("normal", _style(Color(0, 0, 0, 0.45), Color(0.4, 0.35, 0.3, 0.35)))
-	b.add_theme_stylebox_override("hover", _style(Color(0.15, 0.02, 0.02, 0.7), Color(0.8, 0.2, 0.1, 0.8)))
-	b.add_theme_stylebox_override("pressed", _style(Color(0.3, 0.02, 0.02, 0.8), Color(1, 0.3, 0.2)))
-	b.add_theme_stylebox_override("focus", _style(Color(0.15, 0.02, 0.02, 0.7), Color(0.8, 0.2, 0.1, 0.8)))
-	b.pressed.connect(func():
-		Sfx.play("ui_click", -4.0)
-		cb.call())
-	b.mouse_entered.connect(func(): Sfx.play("ui_hover", -10.0))
-	return b
+	return UI.button(text, cb, font_main, Vector2(340, 54), 26)
 
 
 func _build_help() -> void:

@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 ## Generic interactable object. World code supplies callbacks for prompt and use.
 

@@ -7,19 +7,6 @@ const LOOPS := [
 	"radio_voice_1", "radio_voice_2", "radio_voice_3", "radio_voice_creepy",
 ]
 
-const NAMES := [
-	"amb_drone", "amb_machine", "amb_vent", "steam_hiss", "furnace_roar", "drip", "generator_loop",
-	"alarm_loop", "step_concrete_1", "step_concrete_2", "step_concrete_3", "step_concrete_4",
-	"step_metal_1", "step_metal_2", "step_metal_3", "monster_step_1", "monster_step_2",
-	"monster_growl_1", "monster_growl_2", "monster_growl_3", "monster_scream", "monster_breath",
-	"jumpscare", "stinger_spotted", "stinger_low", "chase_music", "menu_music", "ending_music",
-	"heartbeat", "breath_heavy", "flashlight_click", "pickup", "paper", "battery", "ui_click",
-	"ui_hover", "objective", "door_open", "door_locked", "shutter_open", "locker", "fuse_insert",
-	"electric_zap", "generator_start", "power_on", "power_down", "light_burst", "metal_bang_1",
-	"metal_bang_2", "metal_bang_3", "chain_rattle", "keycard_ok", "keycard_denied", "lever",
-	"radio_click", "radio_static", "whisper_1", "whisper_2", "whisper_3", "radio_voice_1",
-	"radio_voice_2", "radio_voice_3", "radio_voice_creepy",
-]
 
 var streams := {}
 var _music_a: AudioStreamPlayer
@@ -33,12 +20,12 @@ var _voice_tween: Tween
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_setup_buses()
-	for n in NAMES:
-		var path := "res://audio/%s.wav" % n
-		if not ResourceLoader.exists(path):
-			push_warning("Missing sound: " + path)
+	# every .wav in res://audio (the .import files are listed in exported games too)
+	for f in DirAccess.get_files_at("res://audio"):
+		if not f.ends_with(".wav.import"):
 			continue
-		var s: AudioStream = load(path)
+		var n := f.trim_suffix(".wav.import")
+		var s: AudioStream = load("res://audio/%s.wav" % n)
 		# Loop on the shared resource (not a copy) so scenes that reference the .wav loop too.
 		if n in LOOPS and s is AudioStreamWAV and s.loop_mode == AudioStreamWAV.LOOP_DISABLED:
 			_make_loop(s)

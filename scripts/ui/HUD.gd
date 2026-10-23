@@ -1,6 +1,8 @@
 extends CanvasLayer
 ## In-game interface: subtitles, objectives, prompts, notes, pause, death & ending screens.
 
+const UI := preload("res://scripts/ui/UI.gd")
+
 signal resume_requested
 signal quit_requested
 signal ending_closed
@@ -79,8 +81,8 @@ var paused := false
 func _ready() -> void:
 	layer = 10
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	font_main = _sys_font(["Bahnschrift", "DIN Alternate", "Roboto Condensed", "Arial Narrow", "DejaVu Sans Condensed", "Liberation Sans Narrow", "Arial", "Sans-Serif"])
-	font_type = _sys_font(["Courier New", "Courier Prime", "American Typewriter", "Liberation Mono", "DejaVu Sans Mono", "Monospace"])
+	font_main = UI.font(UI.MAIN_FONTS)
+	font_type = UI.font(UI.TYPE_FONTS)
 	_build()
 	Game.subtitle_shown.connect(_on_subtitle)
 	Game.subtitle_hidden.connect(_on_subtitle_hide)
@@ -90,36 +92,23 @@ func _ready() -> void:
 	Game.note_opened.connect(_on_note)
 
 
-func _sys_font(names: Array) -> Font:
-	var f := SystemFont.new()
-	f.font_names = PackedStringArray(names)
-	f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
-	return f
-
-
 func _label(text: String, size: int, col := Color.WHITE, font: Font = null) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.add_theme_font_override("font", font if font else font_main)
-	l.add_theme_font_size_override("font_size", size)
-	l.add_theme_color_override("font_color", col)
-	l.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
-	l.add_theme_constant_override("shadow_offset_x", 2)
-	l.add_theme_constant_override("shadow_offset_y", 2)
-	return l
+	return UI.label(text, size, col, font if font else font_main)
 
 
 func _style(bg: Color, border := Color(0, 0, 0, 0), bw := 0, radius := 4, pad := 14) -> StyleBoxFlat:
-	var s := StyleBoxFlat.new()
-	s.bg_color = bg
-	s.border_color = border
-	s.set_border_width_all(bw)
-	s.set_corner_radius_all(radius)
-	s.content_margin_left = pad
-	s.content_margin_right = pad
-	s.content_margin_top = pad * 0.6
-	s.content_margin_bottom = pad * 0.6
-	return s
+	return UI.style(bg, border, bw, radius, pad)
+
+
+## Centre-aligned label placed by anchor preset; rect = offsets (x, y, width, height).
+func _centered(l: Label, preset: int, rect: Rect2) -> Label:
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.set_anchors_preset(preset)
+	l.offset_left = rect.position.x
+	l.offset_top = rect.position.y
+	l.offset_right = rect.end.x
+	l.offset_bottom = rect.end.y
+	return l
 
 
 func _full(c: Control) -> void:
@@ -139,22 +128,7 @@ func _bar(fill: Color) -> ProgressBar:
 
 
 func _button(text: String, cb: Callable) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.custom_minimum_size = Vector2(320, 48)
-	b.add_theme_font_override("font", font_main)
-	b.add_theme_font_size_override("font_size", 24)
-	b.add_theme_color_override("font_color", Color(0.75, 0.72, 0.65))
-	b.add_theme_color_override("font_hover_color", Color(1, 0.3, 0.2))
-	b.add_theme_stylebox_override("normal", _style(Color(0, 0, 0, 0.5), Color(0.4, 0.35, 0.3, 0.4), 1, 2))
-	b.add_theme_stylebox_override("hover", _style(Color(0.15, 0.02, 0.02, 0.7), Color(0.8, 0.2, 0.1, 0.8), 1, 2))
-	b.add_theme_stylebox_override("pressed", _style(Color(0.3, 0.02, 0.02, 0.8), Color(1, 0.3, 0.2), 1, 2))
-	b.add_theme_stylebox_override("focus", _style(Color(0.15, 0.02, 0.02, 0.7), Color(0.8, 0.2, 0.1, 0.8), 1, 2))
-	b.pressed.connect(func():
-		Sfx.play("ui_click", -4.0)
-		cb.call())
-	b.mouse_entered.connect(func(): Sfx.play("ui_hover", -10.0))
-	return b
+	return UI.button(text, cb, font_main)
 
 
 func _build() -> void:
@@ -180,22 +154,10 @@ func _build() -> void:
 	crosshair.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(crosshair)
 
-	prompt_label = _label("", 22, Color(0.95, 0.92, 0.85))
-	prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prompt_label.set_anchors_preset(Control.PRESET_CENTER)
-	prompt_label.offset_left = -400
-	prompt_label.offset_right = 400
-	prompt_label.offset_top = 28
-	prompt_label.offset_bottom = 60
+	prompt_label = _centered(_label("", 22, Color(0.95, 0.92, 0.85)), Control.PRESET_CENTER, Rect2(-400, 28, 800, 32))
 	root.add_child(prompt_label)
 
-	hint_label = _label("", 22, Color(0.9, 0.85, 0.7))
-	hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	hint_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	hint_label.offset_left = -500
-	hint_label.offset_right = 500
-	hint_label.offset_top = 120
-	hint_label.offset_bottom = 160
+	hint_label = _centered(_label("", 22, Color(0.9, 0.85, 0.7)), Control.PRESET_CENTER_TOP, Rect2(-500, 120, 1000, 40))
 	hint_label.modulate.a = 0.0
 	root.add_child(hint_label)
 
@@ -305,22 +267,10 @@ func _build() -> void:
 	nv.add_child(close)
 
 	# chapter title
-	title_label = _label("", 64, Color(0.85, 0.82, 0.75))
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.set_anchors_preset(Control.PRESET_CENTER)
-	title_label.offset_left = -700
-	title_label.offset_right = 700
-	title_label.offset_top = -120
-	title_label.offset_bottom = -40
+	title_label = _centered(_label("", 64, Color(0.85, 0.82, 0.75)), Control.PRESET_CENTER, Rect2(-700, -120, 1400, 80))
 	title_label.modulate.a = 0.0
 	root.add_child(title_label)
-	title_sub = _label("", 24, Color(0.7, 0.3, 0.25))
-	title_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_sub.set_anchors_preset(Control.PRESET_CENTER)
-	title_sub.offset_left = -700
-	title_sub.offset_right = 700
-	title_sub.offset_top = -30
-	title_sub.offset_bottom = 10
+	title_sub = _centered(_label("", 24, Color(0.7, 0.3, 0.25)), Control.PRESET_CENTER, Rect2(-700, -30, 1400, 40))
 	title_sub.modulate.a = 0.0
 	root.add_child(title_sub)
 
@@ -339,22 +289,10 @@ func _build() -> void:
 	root.add_child(fade_rect)
 
 	# death
-	death_label = _label("YOU WERE COUNTED", 72, Color(0.75, 0.05, 0.03))
-	death_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	death_label.set_anchors_preset(Control.PRESET_CENTER)
-	death_label.offset_left = -700
-	death_label.offset_right = 700
-	death_label.offset_top = -60
-	death_label.offset_bottom = 30
+	death_label = _centered(_label("YOU WERE COUNTED", 72, Color(0.75, 0.05, 0.03)), Control.PRESET_CENTER, Rect2(-700, -60, 1400, 90))
 	death_label.visible = false
 	root.add_child(death_label)
-	death_sub = _label("", 22, Color(0.6, 0.55, 0.5))
-	death_sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	death_sub.set_anchors_preset(Control.PRESET_CENTER)
-	death_sub.offset_left = -700
-	death_sub.offset_right = 700
-	death_sub.offset_top = 40
-	death_sub.offset_bottom = 80
+	death_sub = _centered(_label("", 22, Color(0.6, 0.55, 0.5)), Control.PRESET_CENTER, Rect2(-700, 40, 1400, 40))
 	death_sub.visible = false
 	root.add_child(death_sub)
 

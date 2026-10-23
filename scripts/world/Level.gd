@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 ## Builds Kessler Ironworks Plant 9 entirely from code: architecture, props,
 ## lights, signage, sound emitters and the navigation mesh.
@@ -20,7 +21,6 @@ const Pickup := preload("res://scripts/interact/Pickup.gd")
 const Note := preload("res://scripts/interact/Note.gd")
 const Door := preload("res://scripts/interact/Door.gd")
 const Locker := preload("res://scripts/interact/Locker.gd")
-const Trigger := preload("res://scripts/interact/Trigger.gd")
 const FlickerLight := preload("res://scripts/world/FlickerLight.gd")
 
 const LOW_H := 4.5
@@ -86,7 +86,6 @@ func build() -> void:
 	lights = global_lights
 	_solid = geo
 	_build_patrol_points()
-	_build_markers()
 
 
 func _begin_room(room_name: String) -> void:
@@ -107,142 +106,31 @@ func bake_nav() -> void:
 
 
 # ================================================================ scene support
-## Called when the level comes from scenes/Level.tscn (the editable map) instead of build().
-## Looks up every node the story needs by name, so you can move things in the editor freely.
-func resolve() -> void:
-	geo = $Geometry
-	props = $Props
-	lights = $Lights
-	M.rubber = _flat(Color(0.03, 0.03, 0.03), 0.9)
-	M.ceramic = _flat(Color(0.85, 0.85, 0.8), 0.3)
-	M.brass = _flat(Color(0.6, 0.45, 0.2), 0.4, 0.9)
-	fusebox = find_child("FuseBox", true, false)
-	fuse_slots.clear()
-	for i in range(3):
-		fuse_slots.append(fusebox.get_node("FuseSlot%d" % i))
-	generator = find_child("Generator", true, false)
-	generator_exhaust = generator.get_node("Exhaust")
-	console = find_child("Line9Console", true, false)
-	console_screen_mat = console.get_node("Screen").material_override
-	shutter = find_child("LoadingBayShutter", true, false)
-	foreman_door = find_child("ForemanDoor", true, false)
-	writing_label = find_child("HeCountsUs", true, false)
-	alarm_lights.clear()
-	for n in find_children("AlarmLight*", "", true, false):
-		alarm_lights.append(n)
+## In the editor the map is generated for preview only. Generated nodes get no owner,
+## so they are never saved: scenes/Level.tscn only stores Markers and Custom.
+func _ready() -> void:
+	if Engine.is_editor_hint() and get_node_or_null("Geometry") == null:
+		build()
+
+
+func _loop(n: String, parent: Node3D, pos: Vector3, vol: float, dist: float, unit: float, start := true) -> AudioStreamPlayer3D:
+	if Engine.is_editor_hint():
+		return null
+	return Sfx.loop_3d(n, parent, pos, vol, dist, unit, start)
+
+
+## Reads the editable parts of scenes/Level.tscn: spawn, patrol route and Custom objects.
+func use_markers() -> void:
 	var spawn: Node3D = $Markers/PlayerSpawn
 	spawn_pos = spawn.global_position
 	spawn_yaw = spawn.global_rotation.y
 	patrol_points.clear()
 	for m in $Markers/PatrolPoints.get_children():
 		patrol_points.append(m.global_position)
-
-
-## Marker nodes you can drag around in the editor: spawn, patrol route, items, documents, story triggers.
-func _build_markers() -> void:
-	var root := Node3D.new()
-	root.name = "Markers"
-	add_child(root)
-	var spawn := Marker3D.new()
-	spawn.name = "PlayerSpawn"
-	spawn.position = spawn_pos
-	spawn.rotation.y = spawn_yaw
-	root.add_child(spawn)
-	var pp := Node3D.new()
-	pp.name = "PatrolPoints"
-	root.add_child(pp)
-	for i in range(patrol_points.size()):
-		_marker(pp, "Patrol%02d" % (i + 1), patrol_points[i])
-	# items: the name prefix decides what spawns there (Flashlight, Fuse..., Keycard, Battery...)
-	var items := Node3D.new()
-	items.name = "Items"
-	root.add_child(items)
-	var item_spots := {
-		"Flashlight": Vector3(-57.2, 0.95, 38.5),
-		"Fuse_Warehouse": Vector3(55.5, 1.3, 14),
-		"Fuse_LockerRoom": Vector3(-46, 0.6, -10),
-		"Fuse_Furnace": Vector3(-31.4, 1.02, -37.6),
-		"Keycard": Vector3(-47.4, 0.85, -31.8),
-		"Battery_Security": Vector3(-56.0, 0.95, 38.8),
-		"Battery_Hall": Vector3(-33.8, 0.95, 2.15),
-		"Battery_Warehouse": Vector3(22.2, 0.95, -2.05),
-		"Battery_Boiler": Vector3(25.2, 0.95, -14.25),
-		"Battery_Lockers": Vector3(-44.0, 0.52, 6.0),
-		"Battery_Control": Vector3(10.5, 0.95, -39.2),
-		"Battery_Pallets": Vector3(45.6, 2.45, 33),
-		"Battery_Foreman": Vector3(-59.4, 1.35, -36.0),
-	}
-	for n in item_spots:
-		_marker(items, n, item_spots[n])
-	# documents: the name is the note id used by World.NOTES
-	var notes := Node3D.new()
-	notes.name = "Notes"
-	root.add_child(notes)
-	var note_spots := {
-		"notice": Vector3(-46.8, 1.17, 24.0),
-		"security": Vector3(-58.5, 0.92, 38.4),
-		"maintenance": Vector3(-34.5, 0.92, 1.9),
-		"manifest": Vector3(22.9, 0.92, -2.3),
-		"diary": Vector3(-53, 0.5, 3.0),
-		"scrawl": Vector3(25.6, 0.92, -13.8),
-		"voss": Vector3(-48.6, 0.83, -32.1),
-		"incident": Vector3(-59.4, 1.31, -37.0),
-		"last": Vector3(9.7, 0.92, -39.3),
-	}
-	for n in note_spots:
-		_marker(notes, n, note_spots[n])
-	# story triggers (resize them with their CollisionShape3D in the editor)
-	var trig := Node3D.new()
-	trig.name = "Triggers"
-	root.add_child(trig)
-	var trigger_spots := [
-		["Hall", Vector3(-31, 2, 30), Vector3(4, 4, 6), true],
-		["Warehouse", Vector3(26, 2, 8), Vector3(6, 4, 10), true],
-		["Boiler", Vector3(30, 2, -10), Vector3(14, 4, 10), true],
-		["Furnace", Vector3(-10, 2, -20), Vector3(10, 4, 6), true],
-		["LockerRoom", Vector3(-48, 2, 8), Vector3(6, 4, 4), true],
-		["ForemanOffice", Vector3(-48, 2, -20), Vector3(6, 4, 6), true],
-		["Exit", Vector3(64, 2, 26), Vector3(4, 6, 10), false],
-		["Catwalk", Vector3(-8, 2, -6), Vector3(20, 4, 6), true],
-	]
-	for t in trigger_spots:
-		var tr := Trigger.new()
-		tr.name = t[0]
-		tr.setup(t[2], Callable(), t[3])
-		tr.position = t[1]
-		trig.add_child(tr)
-
-
-func _marker(parent: Node3D, n: String, pos: Vector3) -> Marker3D:
-	var m := Marker3D.new()
-	m.name = n
-	m.position = pos
-	m.gizmo_extents = 0.5
-	parent.add_child(m)
-	return m
-
-
-## Prepares the generated tree to be saved as a .tscn: readable names + ownership.
-func prepare_for_save(root: Node = self) -> void:
-	var counter := {}
-	_prepare(root, counter, root)
-
-
-func _prepare(n: Node, counter: Dictionary, root: Node) -> void:
-	for c in n.get_children():
-		if str(c.name).begins_with("@"):
-			var base := c.get_class()
-			if c is StaticBody3D and c.get_child_count() > 1 and c.get_child(1) is MeshInstance3D:
-				base = "Solid"
-			elif c is MeshInstance3D:
-				base = "Mesh"
-			elif c is Label3D:
-				base = "Sign"
-			counter[base] = counter.get(base, 0) + 1
-			c.name = "%s%d" % [base, counter[base]]
-		c.owner = root
-		if c.scene_file_path == "":
-			_prepare(c, counter, root)
+	# anything you place under Custom becomes part of the map (and the monster walks around it)
+	var custom := get_node_or_null("Custom")
+	if custom:
+		custom.reparent(geo)
 
 
 # ================================================================ materials
@@ -559,63 +447,49 @@ func lamp(pos: Vector3, col: Color, energy: float, rng: float, needs_power := tr
 	fl.bulb_mat = _glow(col, 0.0)
 	match kind:
 		"hanging":
-			var shade := MeshInstance3D.new()
-			var cm := CylinderMesh.new()
-			cm.top_radius = 0.12
-			cm.bottom_radius = 0.55
-			cm.height = 0.35
-			shade.mesh = cm
-			shade.material_override = M.lamp_shade
-			shade.position.y = -0.15
-			fl.add_child(shade)
-			var bulb := MeshInstance3D.new()
-			var sm := SphereMesh.new()
-			sm.radius = 0.14
-			sm.height = 0.28
-			bulb.mesh = sm
-			bulb.material_override = fl.bulb_mat
-			bulb.position.y = -0.3
-			fl.add_child(bulb)
-			var cable := MeshInstance3D.new()
-			var cc := CylinderMesh.new()
-			cc.top_radius = 0.015
-			cc.bottom_radius = 0.015
-			cc.height = 2.0
-			cable.mesh = cc
-			cable.material_override = M.rubber
-			cable.position.y = 1.0
-			fl.add_child(cable)
+			_part(fl, _cylm(0.12, 0.55, 0.35), M.lamp_shade, Vector3(0, -0.15, 0))
+			_part(fl, _sphm(0.14), fl.bulb_mat, Vector3(0, -0.3, 0))
+			_part(fl, _cylm(0.015, 0.015, 2.0), M.rubber, Vector3(0, 1, 0))
 		"tube":
-			var tube := MeshInstance3D.new()
-			var bm := BoxMesh.new()
-			bm.size = Vector3(1.4, 0.08, 0.16)
-			tube.mesh = bm
-			tube.material_override = fl.bulb_mat
-			fl.add_child(tube)
-			var housing := MeshInstance3D.new()
-			var hb := BoxMesh.new()
-			hb.size = Vector3(1.5, 0.08, 0.26)
-			housing.mesh = hb
-			housing.material_override = M.lamp_shade
-			housing.position.y = 0.07
-			fl.add_child(housing)
+			_part(fl, _boxm(Vector3(1.4, 0.08, 0.16)), fl.bulb_mat)
+			_part(fl, _boxm(Vector3(1.5, 0.08, 0.26)), M.lamp_shade, Vector3(0, 0.07, 0))
 		"cage":
-			var b := MeshInstance3D.new()
-			var s := SphereMesh.new()
-			s.radius = 0.11
-			s.height = 0.22
-			b.mesh = s
-			b.material_override = fl.bulb_mat
-			fl.add_child(b)
-			var cage := MeshInstance3D.new()
-			var cb := BoxMesh.new()
-			cb.size = Vector3(0.3, 0.3, 0.12)
-			cage.mesh = cb
-			cage.material_override = M.lamp_shade
-			cage.position.z = 0.1
-			fl.add_child(cage)
+			_part(fl, _sphm(0.11), fl.bulb_mat)
+			_part(fl, _boxm(Vector3(0.3, 0.3, 0.12)), M.lamp_shade, Vector3(0, 0, 0.1))
 	lights.add_child(fl)
 	return fl
+
+
+# small mesh helpers
+func _part(parent: Node3D, mesh: Mesh, mat: Material, pos := Vector3.ZERO, rot := Vector3.ZERO) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.mesh = mesh
+	mi.material_override = mat
+	mi.position = pos
+	mi.rotation = rot
+	parent.add_child(mi)
+	return mi
+
+
+func _cylm(top: float, bottom: float, h: float) -> CylinderMesh:
+	var cm := CylinderMesh.new()
+	cm.top_radius = top
+	cm.bottom_radius = bottom
+	cm.height = h
+	return cm
+
+
+func _boxm(size: Vector3) -> BoxMesh:
+	var bm := BoxMesh.new()
+	bm.size = size
+	return bm
+
+
+func _sphm(r: float) -> SphereMesh:
+	var sm := SphereMesh.new()
+	sm.radius = r
+	sm.height = r * 2.0
+	return sm
 
 
 func emergency(pos: Vector3, flicker := 0.15) -> Node3D:
@@ -677,25 +551,22 @@ func pipe_run(a: Vector3, b: Vector3, r: float, mat: Material = null) -> void:
 		cyl(p, r * 1.35, 0.12, M.dark_metal, axis, false, props, 10)
 
 
-func steam_vent(pos: Vector3, dir := Vector3.UP) -> void:
+## Billboard smoke/steam particles.
+func _smoke(pos: Vector3, dir: Vector3, amount: int, life: float, size: float, col: Color, parent: Node3D) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
-	p.amount = 40
-	p.lifetime = 2.2
+	p.amount = amount
+	p.lifetime = life
 	p.direction = dir
 	p.spread = 12.0
 	p.initial_velocity_min = 1.5
 	p.initial_velocity_max = 3.0
-	p.gravity = Vector3(0, 0.4, 0)
+	p.gravity = Vector3(0.2, 0.4, 0)
 	p.damping_min = 0.8
 	p.damping_max = 1.2
 	p.scale_amount_min = 0.6
-	p.scale_amount_max = 1.6
-	var curve := Curve.new()
-	curve.add_point(Vector2(0, 0.2))
-	curve.add_point(Vector2(1, 1.0))
-	p.scale_amount_curve = curve
+	p.scale_amount_max = 1.8
 	var qm := QuadMesh.new()
-	qm.size = Vector2(0.6, 0.6)
+	qm.size = Vector2(size, size)
 	var sm := StandardMaterial3D.new()
 	sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -705,12 +576,17 @@ func steam_vent(pos: Vector3, dir := Vector3.UP) -> void:
 	qm.material = sm
 	p.mesh = qm
 	var g := Gradient.new()
-	g.set_color(0, Color(0.7, 0.7, 0.7, 0.18))
-	g.set_color(1, Color(0.7, 0.7, 0.7, 0.0))
+	g.set_color(0, col)
+	g.set_color(1, Color(col, 0.0))
 	p.color_ramp = g
 	p.position = pos
-	props.add_child(p)
-	Sfx.loop_3d("steam_hiss", props, pos, -10.0, 14.0, 2.0)
+	parent.add_child(p)
+	return p
+
+
+func steam_vent(pos: Vector3, dir := Vector3.UP) -> void:
+	_smoke(pos, dir, 40, 2.2, 0.6, Color(0.7, 0.7, 0.7, 0.18), props)
+	_loop("steam_hiss", props, pos, -10.0, 14.0, 2.0)
 
 
 var _dot_tex: GradientTexture2D
@@ -978,10 +854,11 @@ func _build_hall() -> void:
 	hum_root.name = "MachineHum"
 	props.add_child(hum_root)
 	for p in [Vector3(-22, 1, 0), Vector3(-22, 1, 24), Vector3(-4, 1, 4), Vector3(-4, 1, 28)]:
-		var a := Sfx.loop_3d("amb_machine", hum_root, p, -4.0, 26.0, 4.0, false)
-		a.add_to_group("power_sounds", true)
+		var a := _loop("amb_machine", hum_root, p, -4.0, 26.0, 4.0, false)
+		if a:
+			a.add_to_group("power_sounds")
 	for p in [Vector3(-30, 9, 0), Vector3(10, 9, 30)]:
-		Sfx.loop_3d("amb_vent", props, p, -12.0, 25.0, 4.0)
+		_loop("amb_vent", props, p, -12.0, 25.0, 4.0)
 
 
 func _conveyor(x: float, z0: float, z1: float) -> void:
@@ -1093,7 +970,7 @@ func _build_warehouse() -> void:
 	emergency(Vector3(38, 2.0, 14), 0.5)
 	for s in [Vector3(32, 0, 14), Vector3(48, 0, 26), Vector3(42, 0, -1)]:
 		stain(s, Vector2(randf_range(1, 2.5), randf_range(1, 2.5)))
-	Sfx.loop_3d("amb_vent", props, Vector3(40, 10, 20), -10.0, 30.0, 5.0)
+	_loop("amb_vent", props, Vector3(40, 10, 20), -10.0, 30.0, 5.0)
 	locker_at(Vector3(21.0, 0, 16), Vector3.RIGHT)
 	locker_at(Vector3(59.2, 0, 4), Vector3.LEFT)
 	locker_at(Vector3(59.2, 0, 5), Vector3.LEFT)
@@ -1152,34 +1029,9 @@ func _build_boiler() -> void:
 	box(Vector3(-1.4, 1.5, 1.15), Vector3(0.12, 0.12, 0.04), _glow(Color(1, 0.2, 0.1), 1.5), false, generator)
 	cyl(Vector3(1.6, 4.6, -0.6), 0.2, 4.4, M.rust, "y", false, generator, 10)
 	signage("BACKUP GENERATOR\nPULL TO START", Vector3(-1.2, 1.85, 1.15), 0, 18, Color(0.9, 0.9, 0.85), false).reparent(generator, false)
-	generator_exhaust = CPUParticles3D.new()
+	generator_exhaust = _smoke(Vector3(1.6, 6.8, -0.6), Vector3.UP, 30, 3.0, 0.7, Color(0.15, 0.15, 0.15, 0.4), generator)
 	generator_exhaust.name = "Exhaust"
 	generator_exhaust.emitting = false
-	generator_exhaust.amount = 30
-	generator_exhaust.lifetime = 3.0
-	generator_exhaust.direction = Vector3.UP
-	generator_exhaust.spread = 10
-	generator_exhaust.initial_velocity_min = 1.5
-	generator_exhaust.initial_velocity_max = 2.5
-	generator_exhaust.gravity = Vector3(0.2, 0.3, 0)
-	generator_exhaust.scale_amount_min = 1.0
-	generator_exhaust.scale_amount_max = 2.0
-	var qm := QuadMesh.new()
-	qm.size = Vector2(0.7, 0.7)
-	var sm := StandardMaterial3D.new()
-	sm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	sm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	sm.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
-	sm.vertex_color_use_as_albedo = true
-	sm.albedo_texture = _soft_dot()
-	qm.material = sm
-	generator_exhaust.mesh = qm
-	var g := Gradient.new()
-	g.set_color(0, Color(0.15, 0.15, 0.15, 0.4))
-	g.set_color(1, Color(0.2, 0.2, 0.2, 0.0))
-	generator_exhaust.color_ramp = g
-	generator_exhaust.position = Vector3(1.6, 6.8, -0.6)
-	generator.add_child(generator_exhaust)
 
 	signage("BOILER ROOM  >", Vector3(19.7, 4.1, -28), -90, 32)
 	for x in [30.0, 46.0]:
@@ -1192,7 +1044,7 @@ func _build_boiler() -> void:
 	locker_at(Vector3(21.0, 0, -36), Vector3.RIGHT)
 	locker_at(Vector3(59.2, 0, -14), Vector3.LEFT)
 	for i in range(3):
-		Sfx.loop_3d("amb_vent", props, Vector3(25 + i * 15, 9, -30), -14.0, 18.0, 3.0)
+		_loop("amb_vent", props, Vector3(25 + i * 15, 9, -30), -14.0, 18.0, 3.0)
 
 
 # ================================================================ furnace
@@ -1265,7 +1117,7 @@ func _build_furnace() -> void:
 		lamp(Vector3(x, 8.6, -21.0), Color(1.0, 0.8, 0.55), 1.8, 16.0, true, 0.2)
 	emergency(Vector3(-35.4, 3.0, -36))
 	emergency(Vector3(19.5, 3.8, -28))
-	Sfx.loop_3d("furnace_roar", props, Vector3(-8, 2, -32), 0.0, 32.0, 6.0)
+	_loop("furnace_roar", props, Vector3(-8, 2, -32), 0.0, 32.0, 6.0)
 	locker_at(Vector3(-35.2, 0, -24), Vector3.RIGHT)
 	locker_at(Vector3(-35.2, 0, -25), Vector3.RIGHT)
 	locker_at(Vector3(19.2, 0, -20), Vector3.LEFT)
@@ -1364,35 +1216,18 @@ func _build_exterior() -> void:
 	dawn.omni_range = 20.0
 	dawn.position = Vector3(70, 6, 26)
 	lights.add_child(dawn)
-	for i in range(2):
+	# red rotating alarm beacons, switched on by the Line 9 override
+	for a in [[Vector3(59, 6.6, 21), 18.0, 25.0], [Vector3(59, 6.6, 31), 18.0, 25.0], [Vector3(13, 3, -33), 14.0, 25.0], [Vector3(-8, 10.5, 12), 22.0, 30.0]]:
 		var al := SpotLight3D.new()
 		al.light_color = Color(1, 0.2, 0.05)
 		al.light_energy = 0.0
-		al.spot_range = 18.0
-		al.spot_angle = 25.0
+		al.position = a[0]
+		al.spot_range = a[1]
+		al.spot_angle = a[2]
 		al.light_volumetric_fog_energy = 2.5
-		al.position = Vector3(59.0, 6.6, 21.0 + i * 10.0)
 		al.name = "AlarmLight%d" % alarm_lights.size()
 		lights.add_child(al)
 		alarm_lights.append(al)
-	var cl := SpotLight3D.new()
-	cl.light_color = Color(1, 0.2, 0.05)
-	cl.light_energy = 0.0
-	cl.spot_range = 14.0
-	cl.spot_angle = 25.0
-	cl.position = Vector3(13, 3.0, -33)
-	cl.name = "AlarmLight%d" % alarm_lights.size()
-	lights.add_child(cl)
-	alarm_lights.append(cl)
-	var hl := SpotLight3D.new()
-	hl.light_color = Color(1, 0.2, 0.05)
-	hl.light_energy = 0.0
-	hl.spot_range = 22.0
-	hl.spot_angle = 30.0
-	hl.position = Vector3(-8, 10.5, 12)
-	hl.name = "AlarmLight%d" % alarm_lights.size()
-	lights.add_child(hl)
-	alarm_lights.append(hl)
 
 
 func _build_patrol_points() -> void:
@@ -1411,74 +1246,23 @@ func _build_patrol_points() -> void:
 func add_pickup(pos: Vector3, prompt: String, kind: String, cb: Callable) -> Area3D:
 	var root := Node3D.new()
 	var glow := Color(0, 0, 0, 0)
+	var side := Vector3(0, 0, PI / 2)  # lying on its side
 	match kind:
 		"flashlight":
-			var body := MeshInstance3D.new()
-			var cm := CylinderMesh.new()
-			cm.top_radius = 0.035
-			cm.bottom_radius = 0.03
-			cm.height = 0.26
-			body.mesh = cm
-			body.material_override = M.rubber
-			body.rotation.z = PI / 2
-			root.add_child(body)
-			var lens := MeshInstance3D.new()
-			var lm := CylinderMesh.new()
-			lm.top_radius = 0.05
-			lm.bottom_radius = 0.036
-			lm.height = 0.06
-			lens.mesh = lm
-			lens.material_override = _glow(Color(1, 0.95, 0.8), 0.4)
-			lens.rotation.z = PI / 2
-			lens.position.x = 0.15
-			root.add_child(lens)
+			_part(root, _cylm(0.035, 0.03, 0.26), M.rubber, Vector3.ZERO, side)
+			_part(root, _cylm(0.05, 0.036, 0.06), _glow(Color(1, 0.95, 0.8), 0.4), Vector3(0.15, 0, 0), side)
 			glow = Color(1, 0.9, 0.7, 1)
 		"fuse":
-			var body := MeshInstance3D.new()
-			var cm := CylinderMesh.new()
-			cm.top_radius = 0.045
-			cm.bottom_radius = 0.045
-			cm.height = 0.2
-			body.mesh = cm
-			body.material_override = M.ceramic
-			body.rotation.z = PI / 2
-			root.add_child(body)
+			_part(root, _cylm(0.045, 0.045, 0.2), M.ceramic, Vector3.ZERO, side)
 			for sx in [-0.12, 0.12]:
-				var cap := MeshInstance3D.new()
-				var cc := CylinderMesh.new()
-				cc.top_radius = 0.05
-				cc.bottom_radius = 0.05
-				cc.height = 0.05
-				cap.mesh = cc
-				cap.material_override = M.brass
-				cap.rotation.z = PI / 2
-				cap.position.x = sx
-				root.add_child(cap)
+				_part(root, _cylm(0.05, 0.05, 0.05), M.brass, Vector3(sx, 0, 0), side)
 			glow = Color(0.3, 0.7, 1.0, 1)
 		"battery":
-			var body := MeshInstance3D.new()
-			var cm := CylinderMesh.new()
-			cm.top_radius = 0.025
-			cm.bottom_radius = 0.025
-			cm.height = 0.1
-			body.mesh = cm
-			body.material_override = _flat(Color(0.7, 0.45, 0.05), 0.4, 0.4)
-			root.add_child(body)
+			_part(root, _cylm(0.025, 0.025, 0.1), _flat(Color(0.7, 0.45, 0.05), 0.4, 0.4))
 			glow = Color(1.0, 0.7, 0.2, 1)
 		"keycard":
-			var card := MeshInstance3D.new()
-			var bm := BoxMesh.new()
-			bm.size = Vector3(0.09, 0.004, 0.055)
-			card.mesh = bm
-			card.material_override = _flat(Color(0.85, 0.85, 0.85), 0.5)
-			root.add_child(card)
-			var strip := MeshInstance3D.new()
-			var sm := BoxMesh.new()
-			sm.size = Vector3(0.09, 0.005, 0.012)
-			strip.mesh = sm
-			strip.material_override = _glow(Color(0.9, 0.1, 0.05), 1.0)
-			strip.position.z = 0.015
-			root.add_child(strip)
+			_part(root, _boxm(Vector3(0.09, 0.004, 0.055)), _flat(Color(0.85, 0.85, 0.85), 0.5))
+			_part(root, _boxm(Vector3(0.09, 0.005, 0.012)), _glow(Color(0.9, 0.1, 0.05), 1.0), Vector3(0, 0, 0.015))
 			glow = Color(1.0, 0.2, 0.1, 1)
 	var p := Pickup.new()
 	p.setup(prompt, root, glow)
@@ -1493,11 +1277,3 @@ func add_note(pos: Vector3, id: String, title: String, body: String) -> void:
 	n.setup(id, title, body)
 	n.position = pos
 	props.add_child(n)
-
-
-func add_trigger(center: Vector3, size: Vector3, cb: Callable, once := true) -> Area3D:
-	var t := Trigger.new()
-	t.setup(size, cb, once)
-	t.position = center
-	props.add_child(t)
-	return t

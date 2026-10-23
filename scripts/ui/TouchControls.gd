@@ -42,10 +42,7 @@ var _t := 0.0
 func _ready() -> void:
 	layer = 20
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var f := SystemFont.new()
-	f.font_names = PackedStringArray(["Bahnschrift", "DIN Alternate", "Roboto Condensed", "Arial Narrow", "DejaVu Sans Condensed", "Liberation Sans Narrow", "Helvetica Neue", "Arial", "Sans-Serif"])
-	f.font_weight = 600
-	_font = f
+	_font = preload("res://scripts/ui/UI.gd").font(preload("res://scripts/ui/UI.gd").MAIN_FONTS, 600)
 	_canvas = Control.new()
 	_canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE

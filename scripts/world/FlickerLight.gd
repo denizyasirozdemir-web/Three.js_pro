@@ -1,3 +1,4 @@
+@tool
 extends Node3D
 ## A ceiling lamp: light + glowing fixture. Can depend on power and flicker.
 
@@ -23,7 +24,7 @@ func is_lit() -> bool:
 
 
 func _process(delta: float) -> void:
-	if light == null:
+	if light == null or Engine.is_editor_hint():
 		return
 	_t += delta
 	var target := base_energy if is_lit() else 0.0

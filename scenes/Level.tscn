@@ -1,75 +1,34 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=11 format=3]
 
-[ext_resource type="Script" path="res://scripts/world/Level.gd" id="1_fjubs"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Shell.tscn" id="2_3n6y2"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Lobby.tscn" id="3_uotit"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Hall.tscn" id="4_rstp4"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Warehouse.tscn" id="5_5acwd"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/BoilerRoom.tscn" id="6_rh35l"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Furnace.tscn" id="7_7taso"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/LockerRoom.tscn" id="8_o6wi5"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/ForemanOffice.tscn" id="9_nwquf"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/Exterior.tscn" id="10_xyih2"]
-[ext_resource type="Script" path="res://scripts/interact/Trigger.gd" id="11_4b03p"]
+[ext_resource type="Script" path="res://scripts/world/Level.gd" id="1_pqr2y"]
+[ext_resource type="Script" path="res://scripts/interact/Trigger.gd" id="2_t02wq"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_3y5c8"]
-geometry_parsed_geometry_type = 1
-geometry_collision_mask = 1
-agent_height = 2.25
-agent_max_slope = 40.0
-filter_baking_aabb = AABB(-61, -1, -41, 140, 4, 82)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_4ub5e"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_5eq7s"]
 size = Vector3(4, 4, 6)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_t6tew"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_3v4ru"]
 size = Vector3(6, 4, 10)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_lduwf"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_1kr4v"]
 size = Vector3(14, 4, 10)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_jxuda"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_a5lnb"]
 size = Vector3(10, 4, 6)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_cct4e"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_875in"]
 size = Vector3(6, 4, 4)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_nr28p"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_b42q3"]
 size = Vector3(6, 4, 6)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_xfac1"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_0gowi"]
 size = Vector3(4, 6, 10)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_vvj8d"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_a6pud"]
 size = Vector3(20, 4, 6)
 
 [node name="Level" type="Node3D"]
-script = ExtResource("1_fjubs")
-
-[node name="Geometry" type="NavigationRegion3D" parent="."]
-navigation_mesh = SubResource("NavigationMesh_3y5c8")
-
-[node name="Shell" type="Node3D" parent="Geometry" instance=ExtResource("2_3n6y2")]
-
-[node name="Lobby" type="Node3D" parent="Geometry" instance=ExtResource("3_uotit")]
-
-[node name="Hall" type="Node3D" parent="Geometry" instance=ExtResource("4_rstp4")]
-
-[node name="Warehouse" type="Node3D" parent="Geometry" instance=ExtResource("5_5acwd")]
-
-[node name="BoilerRoom" type="Node3D" parent="Geometry" instance=ExtResource("6_rh35l")]
-
-[node name="Furnace" type="Node3D" parent="Geometry" instance=ExtResource("7_7taso")]
-
-[node name="LockerRoom" type="Node3D" parent="Geometry" instance=ExtResource("8_o6wi5")]
-
-[node name="ForemanOffice" type="Node3D" parent="Geometry" instance=ExtResource("9_nwquf")]
-
-[node name="Exterior" type="Node3D" parent="Geometry" instance=ExtResource("10_xyih2")]
-
-[node name="Props" type="Node3D" parent="."]
-
-[node name="Lights" type="Node3D" parent="."]
+script = ExtResource("1_pqr2y")
 
 [node name="Markers" type="Node3D" parent="."]
 
@@ -80,191 +39,145 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 0.1, 37)
 
 [node name="Patrol01" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0, -8)
-gizmo_extents = 0.5
 
 [node name="Patrol02" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 0)
-gizmo_extents = 0.5
 
 [node name="Patrol03" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 22)
-gizmo_extents = 0.5
 
 [node name="Patrol04" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 36)
-gizmo_extents = 0.5
 
 [node name="Patrol05" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 10)
-gizmo_extents = 0.5
 
 [node name="Patrol06" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -10)
-gizmo_extents = 0.5
 
 [node name="Patrol07" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 34)
-gizmo_extents = 0.5
 
 [node name="Patrol08" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 6)
-gizmo_extents = 0.5
 
 [node name="Patrol09" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47, 0, 6)
-gizmo_extents = 0.5
 
 [node name="Patrol10" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.5, 0, 14)
-gizmo_extents = 0.5
 
 [node name="Patrol11" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, 24)
-gizmo_extents = 0.5
 
 [node name="Patrol12" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 26)
-gizmo_extents = 0.5
 
 [node name="Patrol13" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 0, 36)
-gizmo_extents = 0.5
 
 [node name="Patrol14" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 0, -10)
-gizmo_extents = 0.5
 
 [node name="Patrol15" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38, 0, -20)
-gizmo_extents = 0.5
 
 [node name="Patrol16" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54, 0, -20)
-gizmo_extents = 0.5
 
 [node name="Patrol17" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, -37)
-gizmo_extents = 0.5
 
 [node name="Patrol18" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, -22)
-gizmo_extents = 0.5
 
 [node name="Patrol19" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, -30)
-gizmo_extents = 0.5
 
 [node name="Patrol20" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -28)
-gizmo_extents = 0.5
 
 [node name="Patrol21" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -20)
-gizmo_extents = 0.5
 
 [node name="Patrol22" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, 0)
-gizmo_extents = 0.5
 
 [node name="Patrol23" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -52, 0, -4)
-gizmo_extents = 0.5
 
 [node name="Patrol24" type="Marker3D" parent="Markers/PatrolPoints"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -42, 0, 8)
-gizmo_extents = 0.5
 
 [node name="Items" type="Node3D" parent="Markers"]
 
 [node name="Flashlight" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -57.2, 0.95, 38.5)
-gizmo_extents = 0.5
 
 [node name="Fuse_Warehouse" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55.5, 1.3, 14)
-gizmo_extents = 0.5
 
 [node name="Fuse_LockerRoom" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46, 0.6, -10)
-gizmo_extents = 0.5
 
 [node name="Fuse_Furnace" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31.4, 1.02, -37.6)
-gizmo_extents = 0.5
 
 [node name="Keycard" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.4, 0.85, -31.8)
-gizmo_extents = 0.5
 
 [node name="Battery_Security" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56, 0.95, 38.8)
-gizmo_extents = 0.5
 
 [node name="Battery_Hall" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -33.8, 0.95, 2.15)
-gizmo_extents = 0.5
 
 [node name="Battery_Warehouse" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.2, 0.95, -2.05)
-gizmo_extents = 0.5
 
 [node name="Battery_Boiler" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.2, 0.95, -14.25)
-gizmo_extents = 0.5
 
 [node name="Battery_Lockers" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.52, 6)
-gizmo_extents = 0.5
 
 [node name="Battery_Control" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, 0.95, -39.2)
-gizmo_extents = 0.5
 
 [node name="Battery_Pallets" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 45.6, 2.45, 33)
-gizmo_extents = 0.5
 
 [node name="Battery_Foreman" type="Marker3D" parent="Markers/Items"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.4, 1.35, -36)
-gizmo_extents = 0.5
 
 [node name="Notes" type="Node3D" parent="Markers"]
 
 [node name="notice" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.8, 1.17, 24)
-gizmo_extents = 0.5
 
 [node name="security" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.5, 0.92, 38.4)
-gizmo_extents = 0.5
 
 [node name="maintenance" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34.5, 0.92, 1.9)
-gizmo_extents = 0.5
 
 [node name="manifest" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.9, 0.92, -2.3)
-gizmo_extents = 0.5
 
 [node name="diary" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53, 0.5, 3)
-gizmo_extents = 0.5
 
 [node name="scrawl" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25.6, 0.92, -13.8)
-gizmo_extents = 0.5
 
 [node name="voss" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.6, 0.83, -32.1)
-gizmo_extents = 0.5
 
 [node name="incident" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.4, 1.31, -37)
-gizmo_extents = 0.5
 
 [node name="last" type="Marker3D" parent="Markers/Notes"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.7, 0.92, -39.3)
-gizmo_extents = 0.5
 
 [node name="Triggers" type="Node3D" parent="Markers"]
 
@@ -273,85 +186,87 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31, 2, 30)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D1" type="CollisionShape3D" parent="Markers/Triggers/Hall"]
-shape = SubResource("BoxShape3D_4ub5e")
+[node name="@CollisionShape3D@6" type="CollisionShape3D" parent="Markers/Triggers/Hall"]
+shape = SubResource("BoxShape3D_5eq7s")
 
 [node name="Warehouse" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26, 2, 8)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="Markers/Triggers/Warehouse"]
-shape = SubResource("BoxShape3D_t6tew")
+[node name="@CollisionShape3D@7" type="CollisionShape3D" parent="Markers/Triggers/Warehouse"]
+shape = SubResource("BoxShape3D_3v4ru")
 
 [node name="Boiler" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 2, -10)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D3" type="CollisionShape3D" parent="Markers/Triggers/Boiler"]
-shape = SubResource("BoxShape3D_lduwf")
+[node name="@CollisionShape3D@8" type="CollisionShape3D" parent="Markers/Triggers/Boiler"]
+shape = SubResource("BoxShape3D_1kr4v")
 
 [node name="Furnace" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 2, -20)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D4" type="CollisionShape3D" parent="Markers/Triggers/Furnace"]
-shape = SubResource("BoxShape3D_jxuda")
+[node name="@CollisionShape3D@9" type="CollisionShape3D" parent="Markers/Triggers/Furnace"]
+shape = SubResource("BoxShape3D_a5lnb")
 
 [node name="LockerRoom" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 2, 8)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D5" type="CollisionShape3D" parent="Markers/Triggers/LockerRoom"]
-shape = SubResource("BoxShape3D_cct4e")
+[node name="@CollisionShape3D@10" type="CollisionShape3D" parent="Markers/Triggers/LockerRoom"]
+shape = SubResource("BoxShape3D_875in")
 
 [node name="ForemanOffice" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 2, -20)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D6" type="CollisionShape3D" parent="Markers/Triggers/ForemanOffice"]
-shape = SubResource("BoxShape3D_nr28p")
+[node name="@CollisionShape3D@11" type="CollisionShape3D" parent="Markers/Triggers/ForemanOffice"]
+shape = SubResource("BoxShape3D_b42q3")
 
 [node name="Exit" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 2, 26)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = false
 
-[node name="CollisionShape3D7" type="CollisionShape3D" parent="Markers/Triggers/Exit"]
-shape = SubResource("BoxShape3D_xfac1")
+[node name="@CollisionShape3D@12" type="CollisionShape3D" parent="Markers/Triggers/Exit"]
+shape = SubResource("BoxShape3D_0gowi")
 
 [node name="Catwalk" type="Area3D" parent="Markers/Triggers"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 2, -6)
 collision_layer = 0
 collision_mask = 4
 monitorable = false
-script = ExtResource("11_4b03p")
+script = ExtResource("2_t02wq")
 once = true
 
-[node name="CollisionShape3D8" type="CollisionShape3D" parent="Markers/Triggers/Catwalk"]
-shape = SubResource("BoxShape3D_vvj8d")
+[node name="@CollisionShape3D@13" type="CollisionShape3D" parent="Markers/Triggers/Catwalk"]
+shape = SubResource("BoxShape3D_a6pud")
+
+[node name="Custom" type="Node3D" parent="."]

@@ -1,3 +1,4 @@
+@tool
 extends StaticBody3D
 ## A tall steel locker the player can hide inside.
 

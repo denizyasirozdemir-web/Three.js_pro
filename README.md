@@ -51,25 +51,22 @@ Dokunmatik ekranda kontroller otomatik açılır:
 - Butonlara basınca telefon hafifçe titrer.
 
 ## Haritayı düzenlemek
-Harita küçük parçalara bölünmüş durumda (her dosya 200 KB'ın altında):
-- `scenes/Level.tscn`: ana harita. Odaları ve işaretçileri (Markers) içerir.
-- `scenes/rooms/<Oda>.tscn`: her odanın duvarları, makineleri ve lambaları (Shell, Lobby, Hall, Warehouse, BoilerRoom, Furnace, LockerRoom, ForemanOffice, Exterior).
-- `scenes/rooms/<Oda>Props.tscn`: o odanın kapıları, tabelaları, süsleri ve ses kaynakları.
-- `materials/*.tres`: ortak malzemeler (beton, pas, metal...). Birini değiştirirsen her yerde değişir.
+Proje, betikler + sahneler + gölgelendiriciler toplamı **200 KB'ın altında** kalacak şekilde hazırlandı (~189 KB).
+Bu yüzden fabrikanın duvarları ve eşyaları sahne dosyasında değil, `scripts/world/Level.gd` kodunda tanımlı.
 
-Bir odayı düzenlemek için o odanın `.tscn` dosyasını aç; ya da `Level.tscn` içinde odaya sağ tıklayıp **Editable Children** seç. Odaların içinde:
-- **Geometry**: duvarlar, zemin, makineler, raflar, dolaplar (çarpışmalı her şey). Taşı, kopyala (Ctrl+D), sil.
-- **Props**: kapılar, tabelalar, süslemeler, buhar, ses kaynakları. Kapıların kilit türü Inspector'da (`requirement`: power / keycard / finale / never).
-- **Lights**: lambalar. Inspector'dan parlaklık (`base_energy`), elektrik gerekip gerekmediği (`needs_power`) ve titreme (`flicker`).
-- **Markers**: sürükle-bırak ile ayarlanabilir noktalar
-  - `PlayerSpawn`: başlangıç noktası ve yönü
-  - `PatrolPoints`: canavarın devriye rotası (yeni Marker3D ekleyebilirsin)
-  - `Items`: eşyalar. İsmin başı neyin çıkacağını belirler: `Flashlight`, `Fuse...`, `Keycard`, `Battery...` (yeni `Battery_X` ekle = yeni pil)
-  - `Notes`: belgeler. İsim = not kimliği (notice, security, voss...)
-  - `Triggers`: hikâye tetikleyicileri; CollisionShape3D ile boyutlandır
-- Kaydet (Ctrl+S) ve F5 ile oyna. Canavarın yürüme ağı (navmesh) oyun başlarken yeniden hesaplanır, yani duvar taşısan da canavar yeni yolu bulur.
-- Sihirli isimler: `FuseBox`, `Generator`, `Line9Console`, `ForemanDoor`, `LoadingBayShutter`, `HeCountsUs`, `AlarmLight...` — bunların ismini değiştirme, hikâye onları ismen bulur.
-- Haritayı koddan sıfırdan üretmek için `tools/BakeLevel.tscn`'i açıp F6'ya bas. **Dikkat: harita dosyalarındaki tüm değişikliklerin silinir.**
+`scenes/Level.tscn`'i Godot'ta veya Xogot'ta açınca fabrikanın tamamı editörde görünür (kod editörde de çalışır),
+ama dosya sadece ~10 KB'tır. Sahnede düzenleyebileceklerin:
+- **Markers/PlayerSpawn**: oyuncunun başlangıç noktası ve yönü
+- **Markers/PatrolPoints**: canavarın devriye rotası. Marker3D ekle/sil/taşı.
+- **Markers/Items**: eşyalar. İsmin başı neyin çıkacağını belirler: `Flashlight`, `Fuse...`, `Keycard`, `Battery...`. Yeni `Battery_X` ekle = yeni pil.
+- **Markers/Notes**: belgeler. İsim = not kimliği (notice, security, maintenance, manifest, diary, scrawl, voss, incident, last).
+- **Markers/Triggers**: hikâye tetikleyicileri. CollisionShape3D ile boyutlandır.
+- **Custom**: buraya eklediğin her şey (StaticBody3D + CollisionShape3D + MeshInstance3D, CSGBox3D vb.) oyuna girer. Çarpışmalı nesnelerin etrafından canavar da dolaşır.
+
+Duvarları, makineleri ve ışıkları değiştirmek için `Level.gd`'deki ilgili oda fonksiyonunu düzenle
+(`_build_lobby`, `_build_hall`, `_build_warehouse`, `_build_boiler`, `_build_furnace`, `_build_lockers`, `_build_foreman`).
+Örnek: `crate(Vector3(10, 0, 20))` bir kasa, `box(merkez, boyut, M.rust)` bir duvar/blok, `locker_at(konum, yön)` bir dolap,
+`lamp(konum, renk, parlaklık, menzil)` bir lamba ekler. Kaydedince editördeki görüntü de güncellenir (sahneyi kapatıp aç).
 
 ## Canavar (The Foreman) nasıl çalışır
 - Devriye gezer, seni bulunduğun bölgeye doğru "sürüklenir"
@@ -81,20 +78,14 @@ Bir odayı düzenlemek için o odanın `.tscn` dosyasını aç; ya da `Level.tsc
 ## Ses efektlerini yeniden üretmek
 `python3 tools/gen_audio.py` (numpy gerekli) — tüm `.wav` dosyalarını `audio/` içine yeniden yazar.
 
-## Testler
-- `godot --headless res://tests/Test.tscn` — tüm hikâyeyi otomatik oynar (navigasyon, kovalama, ölüm, final)
-- `godot res://tests/Shots.tscn -- <klasör>` — ekran görüntüleri alır
-
 ## Proje yapısı
 ```
 scripts/autoload/Game.gd     global durum, görevler, altyazı kuyruğu, tuş atamaları
 scripts/autoload/Sfx.gd      ses yöneticisi, reverb bus'ları, telsiz sesi, müzik geçişleri
-scenes/Level.tscn            düzenlenebilir harita (odalar + işaretçiler)
-scenes/rooms/*.tscn          oda sahneleri
-materials/*.tres             ortak malzemeler
-scripts/world/Level.gd       haritayı kodla üretir / sahneden referansları bulur
+scenes/Level.tscn            düzenlenebilir işaretçiler (başlangıç, devriye, eşyalar, notlar, tetikleyiciler, Custom)
+scripts/world/Level.gd       fabrikanın tamamını kodla üretir (editörde de)
 scripts/ui/TouchControls.gd  mobil dokunmatik kontroller
-tools/BakeLevel.tscn         haritayı koddan Level.tscn'e yeniden üretir
+scripts/ui/UI.gd             ortak arayüz parçaları (yazı, buton, stil)
 scripts/world/World.gd       hikâye yönetmeni: diyaloglar, olaylar, korkutmalar, son
 scripts/player/Player.gd     FPS kontrol, stamina, fener, saklanma, korku/kalp atışı
 scripts/monster/Monster.gd   The Foreman: model, animasyon, yapay zekâ

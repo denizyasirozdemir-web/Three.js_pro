@@ -1,3 +1,4 @@
+@tool
 extends Area3D
 ## Fires a callback once when the player walks into it.
 
@@ -7,7 +8,8 @@ var _fired := false
 
 
 func _ready() -> void:
-	body_entered.connect(_on_body)
+	if not Engine.is_editor_hint():
+		body_entered.connect(_on_body)
 
 
 func setup(size: Vector3, cb: Callable, p_once := true) -> void:

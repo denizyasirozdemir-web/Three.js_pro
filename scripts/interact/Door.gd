@@ -1,3 +1,4 @@
+@tool
 extends AnimatableBody3D
 ## Industrial sliding door. Can be locked by a requirement ("power", "keycard", "never").
 
@@ -91,7 +92,7 @@ func is_locked() -> bool:
 
 
 func _update_lamp() -> void:
-	if _status_mat == null:
+	if _status_mat == null or Engine.is_editor_hint():
 		return
 	var c := Color(0.9, 0.1, 0.05) if is_locked() else Color(0.1, 0.9, 0.2)
 	if requirement == "power" and not Game.power_on:
@@ -101,7 +102,8 @@ func _update_lamp() -> void:
 
 
 func _process(_d: float) -> void:
-	_update_lamp()
+	if not Engine.is_editor_hint():
+		_update_lamp()
 
 
 func get_prompt() -> String:
