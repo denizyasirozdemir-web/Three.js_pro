@@ -27,8 +27,10 @@ const LOW_H := 4.5
 const HIGH_H := 12.0
 
 var geo: NavigationRegion3D
-var props: Node3D
-var lights: Node3D
+var props: Node3D       # where props go right now (the current room while building)
+var lights: Node3D      # where lights go right now (the current room while building)
+var _solid: Node3D      # where solid geometry goes right now
+var _mesh_cache := {}   # identical boxes/cylinders share one mesh + shape (keeps scene files small)
 var spawn_pos := Vector3(-48, 0.1, 37.0)
 var spawn_yaw := 0.0
 var patrol_points: Array[Vector3] = []
@@ -72,17 +74,32 @@ func build() -> void:
 	add_child(lights)
 
 	_make_materials()
-	_build_shell()
-	_build_lobby()
-	_build_hall()
-	_build_warehouse()
-	_build_boiler()
-	_build_furnace()
-	_build_lockers()
-	_build_foreman()
-	_build_exterior()
+	var global_props := props
+	var global_lights := lights
+	# every area is its own sub-scene (scenes/rooms/*.tscn) under Geometry
+	for r in [["Shell", _build_shell], ["Lobby", _build_lobby], ["Hall", _build_hall],
+			["Warehouse", _build_warehouse], ["BoilerRoom", _build_boiler], ["Furnace", _build_furnace],
+			["LockerRoom", _build_lockers], ["ForemanOffice", _build_foreman], ["Exterior", _build_exterior]]:
+		_begin_room(r[0])
+		r[1].call()
+	props = global_props
+	lights = global_lights
+	_solid = geo
 	_build_patrol_points()
 	_build_markers()
+
+
+func _begin_room(room_name: String) -> void:
+	var room := Node3D.new()
+	room.name = room_name
+	geo.add_child(room)
+	_solid = room
+	props = Node3D.new()
+	props.name = "Props"
+	room.add_child(props)
+	lights = Node3D.new()
+	lights.name = "Lights"
+	room.add_child(lights)
 
 
 func bake_nav() -> void:
@@ -111,9 +128,8 @@ func resolve() -> void:
 	foreman_door = find_child("ForemanDoor", true, false)
 	writing_label = find_child("HeCountsUs", true, false)
 	alarm_lights.clear()
-	for n in lights.get_children():
-		if str(n.name).begins_with("AlarmLight"):
-			alarm_lights.append(n)
+	for n in find_children("AlarmLight*", "", true, false):
+		alarm_lights.append(n)
 	var spawn: Node3D = $Markers/PlayerSpawn
 	spawn_pos = spawn.global_position
 	spawn_yaw = spawn.global_rotation.y
@@ -207,12 +223,12 @@ func _marker(parent: Node3D, n: String, pos: Vector3) -> Marker3D:
 
 
 ## Prepares the generated tree to be saved as a .tscn: readable names + ownership.
-func prepare_for_save() -> void:
+func prepare_for_save(root: Node = self) -> void:
 	var counter := {}
-	_prepare(self, counter)
+	_prepare(root, counter, root)
 
 
-func _prepare(n: Node, counter: Dictionary) -> void:
+func _prepare(n: Node, counter: Dictionary, root: Node) -> void:
 	for c in n.get_children():
 		if str(c.name).begins_with("@"):
 			var base := c.get_class()
@@ -224,8 +240,9 @@ func _prepare(n: Node, counter: Dictionary) -> void:
 				base = "Sign"
 			counter[base] = counter.get(base, 0) + 1
 			c.name = "%s%d" % [base, counter[base]]
-		c.owner = self
-		_prepare(c, counter)
+		c.owner = root
+		if c.scene_file_path == "":
+			_prepare(c, counter, root)
 
 
 # ================================================================ materials
@@ -343,11 +360,12 @@ func _make_materials() -> void:
 # ================================================================ primitives
 func box(center: Vector3, size: Vector3, mat: Material, collide := true, parent: Node3D = null, shadow := true) -> MeshInstance3D:
 	if parent == null:
-		parent = geo
+		parent = _solid
 	var mi := MeshInstance3D.new()
-	var bm := BoxMesh.new()
-	bm.size = size
-	mi.mesh = bm
+	mi.mesh = _cached("box_mesh", size, func():
+		var bm := BoxMesh.new()
+		bm.size = size
+		return bm)
 	mi.material_override = mat
 	if not shadow:
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -356,9 +374,10 @@ func box(center: Vector3, size: Vector3, mat: Material, collide := true, parent:
 		sb.collision_layer = 1
 		sb.position = center
 		var cs := CollisionShape3D.new()
-		var bs := BoxShape3D.new()
-		bs.size = size
-		cs.shape = bs
+		cs.shape = _cached("box_shape", size, func():
+			var bs := BoxShape3D.new()
+			bs.size = size
+			return bs)
 		sb.add_child(cs)
 		sb.add_child(mi)
 		parent.add_child(sb)
@@ -368,17 +387,25 @@ func box(center: Vector3, size: Vector3, mat: Material, collide := true, parent:
 	return mi
 
 
+func _cached(kind: String, key, make: Callable) -> Resource:
+	var k := "%s:%s" % [kind, str(key)]
+	if not _mesh_cache.has(k):
+		_mesh_cache[k] = make.call()
+	return _mesh_cache[k]
+
+
 func cyl(center: Vector3, radius: float, height: float, mat: Material, axis := "y", collide := true, parent: Node3D = null, segs := 16) -> MeshInstance3D:
 	if parent == null:
-		parent = geo
+		parent = _solid
 	var mi := MeshInstance3D.new()
-	var cm := CylinderMesh.new()
-	cm.top_radius = radius
-	cm.bottom_radius = radius
-	cm.height = height
-	cm.radial_segments = segs
-	cm.rings = 1
-	mi.mesh = cm
+	mi.mesh = _cached("cyl_mesh", Vector3(radius, height, segs), func():
+		var cm := CylinderMesh.new()
+		cm.top_radius = radius
+		cm.bottom_radius = radius
+		cm.height = height
+		cm.radial_segments = segs
+		cm.rings = 1
+		return cm)
 	mi.material_override = mat
 	var rot := Vector3.ZERO
 	if axis == "x":
@@ -391,10 +418,11 @@ func cyl(center: Vector3, radius: float, height: float, mat: Material, axis := "
 		sb.position = center
 		sb.rotation = rot
 		var cs := CollisionShape3D.new()
-		var cshape := CylinderShape3D.new()
-		cshape.radius = radius
-		cshape.height = height
-		cs.shape = cshape
+		cs.shape = _cached("cyl_shape", Vector2(radius, height), func():
+			var cshape := CylinderShape3D.new()
+			cshape.radius = radius
+			cshape.height = height
+			return cshape)
 		sb.add_child(cs)
 		sb.add_child(mi)
 		parent.add_child(sb)
@@ -704,7 +732,7 @@ func locker_at(pos: Vector3, facing: Vector3) -> void:
 	var l := Locker.new()
 	l.build(M.locker, M.locker_door, facing)
 	l.position = pos
-	geo.add_child(l)
+	_solid.add_child(l)
 
 
 func hardhat(pos: Vector3, col: Color) -> void:
@@ -726,7 +754,7 @@ func shelf_rack(x0: float, x1: float, z: float, h := 5.0, depth := 1.6) -> void:
 	bs.size = Vector3(len, h, depth)
 	cs.shape = bs
 	sb.add_child(cs)
-	geo.add_child(sb)
+	_solid.add_child(sb)
 	# visuals
 	var posts := int(len / 2.6) + 1
 	for i in range(posts):
@@ -997,7 +1025,7 @@ func _build_fusebox(base: Vector3) -> void:
 	fusebox = Usable.new()
 	fusebox.name = "FuseBox"
 	fusebox.position = base + Vector3(0.2, 0, 0)
-	geo.add_child(fusebox)
+	_solid.add_child(fusebox)
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
 	bs.size = Vector3(0.4, 1.4, 1.2)
@@ -1108,7 +1136,7 @@ func _build_boiler() -> void:
 	generator = Usable.new()
 	generator.name = "Generator"
 	generator.position = Vector3(50, 0, -14)
-	geo.add_child(generator)
+	_solid.add_child(generator)
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
 	bs.size = Vector3(4.2, 2.6, 2.4)
@@ -1195,7 +1223,7 @@ func _build_furnace() -> void:
 	for p in [Vector3(-20, 0, -36), Vector3(-17, 0, -38), Vector3(2, 0, -37), Vector3(-28, 0, -30)]:
 		var mi := sphere(p, 1.4, M.slag, Vector3(1.4, 0.6, 1.2))
 		mi.rotation.y = randf() * TAU
-		box(p + Vector3(0, 0.3, 0), Vector3(2.4, 0.6, 2.0), M.slag, true, geo, false).visible = false
+		box(p + Vector3(0, 0.3, 0), Vector3(2.4, 0.6, 2.0), M.slag, true, _solid, false).visible = false
 	# workbench where fuse C lies
 	table(Vector3(-32, 0, -37.6), Vector3(2.4, 0.95, 0.9))
 	box(Vector3(-33, 1.1, -37.6), Vector3(0.4, 0.3, 0.3), M.dark_metal, false, props)
@@ -1211,7 +1239,7 @@ func _build_furnace() -> void:
 	console = Usable.new()
 	console.name = "Line9Console"
 	console.position = Vector3(14, 0, -39.2)
-	geo.add_child(console)
+	_solid.add_child(console)
 	var cs := CollisionShape3D.new()
 	var bs := BoxShape3D.new()
 	bs.size = Vector3(3.2, 1.2, 1.0)

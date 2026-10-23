@@ -1,0 +1,89 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Material" path="res://materials/concrete.tres" id="1_73ax0"]
+[ext_resource type="Material" path="res://materials/wall.tres" id="2_vxc1w"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/ExteriorProps.tscn" id="3_i437k"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_27xx3"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ttnyn"]
+size = Vector3(20, 0.5, 20)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_l4nyi"]
+size = Vector3(20, 6, 0.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_5x6sx"]
+size = Vector3(20, 6, 0.4)
+
+[node name="Exterior" type="Node3D"]
+
+[node name="Lights" type="Node3D" parent="."]
+
+[node name="OmniLight3D1" type="OmniLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 6, 26)
+light_color = Color(0.6, 0.65, 0.85, 1)
+light_energy = 1.2
+omni_range = 20.0
+
+[node name="AlarmLight0" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59, 6.6, 21)
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 0.0
+light_volumetric_fog_energy = 2.5
+spot_range = 18.0
+spot_angle = 25.0
+
+[node name="AlarmLight1" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 59, 6.6, 31)
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 0.0
+light_volumetric_fog_energy = 2.5
+spot_range = 18.0
+spot_angle = 25.0
+
+[node name="AlarmLight2" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 3, -33)
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 0.0
+spot_range = 14.0
+spot_angle = 25.0
+
+[node name="AlarmLight3" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 10.5, 12)
+light_color = Color(1, 0.2, 0.05, 1)
+light_energy = 0.0
+spot_range = 22.0
+spot_angle = 30.0
+
+[node name="Solid1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, -0.25, 26)
+
+[node name="CollisionShape3D1" type="CollisionShape3D" parent="Solid1"]
+shape = SubResource("BoxShape3D_27xx3")
+
+[node name="Mesh1" type="MeshInstance3D" parent="Solid1"]
+material_override = ExtResource("1_73ax0")
+mesh = SubResource("BoxMesh_ttnyn")
+
+[node name="Solid2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 3, 36.2)
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Solid2"]
+shape = SubResource("BoxShape3D_l4nyi")
+
+[node name="Mesh2" type="MeshInstance3D" parent="Solid2"]
+material_override = ExtResource("2_vxc1w")
+mesh = SubResource("BoxMesh_5x6sx")
+
+[node name="Solid3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70, 3, 15.8)
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="Solid3"]
+shape = SubResource("BoxShape3D_l4nyi")
+
+[node name="Mesh3" type="MeshInstance3D" parent="Solid3"]
+material_override = ExtResource("2_vxc1w")
+mesh = SubResource("BoxMesh_5x6sx")
+
+[node name="Props" type="Node3D" parent="." instance=ExtResource("3_i437k")]

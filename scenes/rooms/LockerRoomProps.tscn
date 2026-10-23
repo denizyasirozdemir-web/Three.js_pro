@@ -1,0 +1,165 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Material" path="res://materials/tile.tres" id="1_eslo4"]
+[ext_resource type="Material" path="res://materials/dark_metal.tres" id="2_4offk"]
+[ext_resource type="Material" path="res://materials/metal.tres" id="3_pqwck"]
+[ext_resource type="Material" path="res://materials/oil.tres" id="4_n2pus"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_uoqua"]
+size = Vector3(24, 0.01, 28)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ca01q"]
+size = Vector3(0.3, 0.42, 0.3)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lcq43"]
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.05
+radial_segments = 16
+rings = 1
+
+[sub_resource type="BoxMesh" id="BoxMesh_xxklr"]
+size = Vector3(0.3, 0.46, 0.3)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2relq"]
+albedo_color = Color(0.5, 0.55, 0.55, 1)
+metallic = 1.0
+roughness = 0.05
+
+[sub_resource type="BoxMesh" id="BoxMesh_hiefl"]
+size = Vector3(3, 1.2, 0.05)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_qvfpv"]
+height = 0.005
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yrwth"]
+albedo_color = Color(0.08, 0.12, 0.1, 1)
+metallic = 0.3
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_gwcah"]
+size = Vector3(1.13328, 0.4304, 0.04)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jrynl"]
+albedo_color = Color(0.08, 0.12, 0.1, 1)
+metallic = 0.3
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_jq7d7"]
+size = Vector3(2.3088, 0.488, 0.04)
+
+[node name="Props" type="Node3D"]
+
+[node name="Mesh1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 0.005, -2)
+material_override = ExtResource("1_eslo4")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_uoqua")
+
+[node name="Mesh2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53, 0.2, -5)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53, 0.2, 1)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53, 0.2, 7)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.2, -5)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.2, 1)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -44, 0.2, 7)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_ca01q")
+
+[node name="Mesh8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58, 2.4, -14.5)
+material_override = ExtResource("3_pqwck")
+mesh = SubResource("CylinderMesh_lcq43")
+
+[node name="Mesh9" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55.8, 2.4, -14.5)
+material_override = ExtResource("3_pqwck")
+mesh = SubResource("CylinderMesh_lcq43")
+
+[node name="Mesh10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -53.6, 2.4, -14.5)
+material_override = ExtResource("3_pqwck")
+mesh = SubResource("CylinderMesh_lcq43")
+
+[node name="Mesh11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -51.4, 2.4, -14.5)
+material_override = ExtResource("3_pqwck")
+mesh = SubResource("CylinderMesh_lcq43")
+
+[node name="Mesh12" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.2, 2.4, -14.5)
+material_override = ExtResource("3_pqwck")
+mesh = SubResource("CylinderMesh_lcq43")
+
+[node name="Mesh13" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46, 0.24, -10)
+material_override = ExtResource("2_4offk")
+mesh = SubResource("BoxMesh_xxklr")
+
+[node name="Mesh14" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 1.6, 11.7)
+material_override = SubResource("StandardMaterial3D_2relq")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_hiefl")
+
+[node name="Drip" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -56, 3, -14)
+
+[node name="Mesh15" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.47327, 0, 0.281917, 0, 1, 0, -0.281917, 0, 1.47327, -56, 0.006, -14)
+material_override = ExtResource("4_n2pus")
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_qvfpv")
+
+[node name="Sign1" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 3.9, -15.7)
+pixel_size = 0.006
+shaded = true
+double_sided = false
+modulate = Color(0.85, 0.85, 0.8, 1)
+outline_modulate = Color(0, 0, 0, 0.8)
+text = "FOREMAN"
+outline_size = 6
+
+[node name="Mesh16" type="MeshInstance3D" parent="Sign1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03)
+material_override = SubResource("StandardMaterial3D_yrwth")
+mesh = SubResource("BoxMesh_gwcah")
+
+[node name="Sign2" type="Label3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -59.7, 2.4, -9)
+pixel_size = 0.006
+shaded = true
+double_sided = false
+modulate = Color(0.7, 0.7, 0.6, 1)
+outline_modulate = Color(0, 0, 0, 0.8)
+text = "WASH YOUR HANDS.
+THEY KNOW WHAT YOU TOUCHED."
+font_size = 20
+outline_size = 6
+
+[node name="Mesh17" type="MeshInstance3D" parent="Sign2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03)
+material_override = SubResource("StandardMaterial3D_jrynl")
+mesh = SubResource("BoxMesh_jq7d7")

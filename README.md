@@ -51,7 +51,13 @@ Dokunmatik ekranda kontroller otomatik açılır:
 - Butonlara basınca telefon hafifçe titrer.
 
 ## Haritayı düzenlemek
-Harita `scenes/Level.tscn` sahnesinde. Godot'ta (veya Xogot'ta) bu dosyayı aç:
+Harita küçük parçalara bölünmüş durumda (her dosya 200 KB'ın altında):
+- `scenes/Level.tscn`: ana harita. Odaları ve işaretçileri (Markers) içerir.
+- `scenes/rooms/<Oda>.tscn`: her odanın duvarları, makineleri ve lambaları (Shell, Lobby, Hall, Warehouse, BoilerRoom, Furnace, LockerRoom, ForemanOffice, Exterior).
+- `scenes/rooms/<Oda>Props.tscn`: o odanın kapıları, tabelaları, süsleri ve ses kaynakları.
+- `materials/*.tres`: ortak malzemeler (beton, pas, metal...). Birini değiştirirsen her yerde değişir.
+
+Bir odayı düzenlemek için o odanın `.tscn` dosyasını aç; ya da `Level.tscn` içinde odaya sağ tıklayıp **Editable Children** seç. Odaların içinde:
 - **Geometry**: duvarlar, zemin, makineler, raflar, dolaplar (çarpışmalı her şey). Taşı, kopyala (Ctrl+D), sil.
 - **Props**: kapılar, tabelalar, süslemeler, buhar, ses kaynakları. Kapıların kilit türü Inspector'da (`requirement`: power / keycard / finale / never).
 - **Lights**: lambalar. Inspector'dan parlaklık (`base_energy`), elektrik gerekip gerekmediği (`needs_power`) ve titreme (`flicker`).
@@ -63,7 +69,7 @@ Harita `scenes/Level.tscn` sahnesinde. Godot'ta (veya Xogot'ta) bu dosyayı aç:
   - `Triggers`: hikâye tetikleyicileri; CollisionShape3D ile boyutlandır
 - Kaydet (Ctrl+S) ve F5 ile oyna. Canavarın yürüme ağı (navmesh) oyun başlarken yeniden hesaplanır, yani duvar taşısan da canavar yeni yolu bulur.
 - Sihirli isimler: `FuseBox`, `Generator`, `Line9Console`, `ForemanDoor`, `LoadingBayShutter`, `HeCountsUs`, `AlarmLight...` — bunların ismini değiştirme, hikâye onları ismen bulur.
-- Haritayı koddan sıfırdan üretmek için `tools/BakeLevel.tscn`'i açıp F6'ya bas. **Dikkat: Level.tscn'deki tüm değişikliklerin silinir.**
+- Haritayı koddan sıfırdan üretmek için `tools/BakeLevel.tscn`'i açıp F6'ya bas. **Dikkat: harita dosyalarındaki tüm değişikliklerin silinir.**
 
 ## Canavar (The Foreman) nasıl çalışır
 - Devriye gezer, seni bulunduğun bölgeye doğru "sürüklenir"
@@ -83,7 +89,9 @@ Harita `scenes/Level.tscn` sahnesinde. Godot'ta (veya Xogot'ta) bu dosyayı aç:
 ```
 scripts/autoload/Game.gd     global durum, görevler, altyazı kuyruğu, tuş atamaları
 scripts/autoload/Sfx.gd      ses yöneticisi, reverb bus'ları, telsiz sesi, müzik geçişleri
-scenes/Level.tscn            düzenlenebilir harita sahnesi
+scenes/Level.tscn            düzenlenebilir harita (odalar + işaretçiler)
+scenes/rooms/*.tscn          oda sahneleri
+materials/*.tres             ortak malzemeler
 scripts/world/Level.gd       haritayı kodla üretir / sahneden referansları bulur
 scripts/ui/TouchControls.gd  mobil dokunmatik kontroller
 tools/BakeLevel.tscn         haritayı koddan Level.tscn'e yeniden üretir

@@ -1,0 +1,297 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Material" path="res://materials/wood.tres" id="1_oiakf"]
+[ext_resource type="Material" path="res://materials/dark_metal.tres" id="2_a3nxf"]
+[ext_resource type="Material" path="res://materials/chalk.tres" id="3_ieowi"]
+[ext_resource type="Material" path="res://materials/paper.tres" id="4_hkj2m"]
+[ext_resource type="Material" path="res://materials/blood.tres" id="5_cpm0g"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_cjokt"]
+size = Vector3(24, 0.01, 24)
+
+[sub_resource type="BoxMesh" id="BoxMesh_jwe2l"]
+size = Vector3(2.7, 0.03, 1.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ppou8"]
+size = Vector3(0.4, 0.25, 0.3)
+
+[sub_resource type="BoxMesh" id="BoxMesh_q82y3"]
+size = Vector3(0.6, 0.6, 0.08)
+
+[sub_resource type="BoxMesh" id="BoxMesh_dg4bi"]
+size = Vector3(0.01, 0.6, 0.04)
+
+[sub_resource type="BoxMesh" id="BoxMesh_q7ybp"]
+size = Vector3(0.01, 0.05, 0.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_svst8"]
+size = Vector3(0.4, 0.5, 0.03)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_dotww"]
+height = 0.005
+radial_segments = 12
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_uunhk"]
+height = 0.005
+radial_segments = 12
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dtgg1"]
+albedo_color = Color(0.08, 0.12, 0.1, 1)
+metallic = 0.3
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="BoxMesh_bcs4k"]
+size = Vector3(2.52456, 0.3872, 0.04)
+
+[node name="Props" type="Node3D"]
+
+[node name="Mesh1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 0.005, -28)
+material_override = ExtResource("1_oiakf")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_cjokt")
+
+[node name="Mesh2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 0.81, -32)
+material_override = ExtResource("2_a3nxf")
+mesh = SubResource("BoxMesh_jwe2l")
+
+[node name="Mesh3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49, 0.95, -32.3)
+material_override = ExtResource("2_a3nxf")
+mesh = SubResource("BoxMesh_ppou8")
+
+[node name="Mesh4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 0.8, -33.5)
+material_override = ExtResource("2_a3nxf")
+mesh = SubResource("BoxMesh_q82y3")
+
+[node name="Mesh5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -29.6)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh6" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -29.42)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh7" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -29.24)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh8" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -29.06)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh9" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.825336, -0.564642, 0, 0.564642, 0.825336, -36.4, 2.1, -29.24)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_q7ybp")
+
+[node name="Mesh10" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -28.5)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh11" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -28.32)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh12" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -28.14)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh13" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -27.96)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh14" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.825336, -0.564642, 0, 0.564642, 0.825336, -36.4, 2.1, -28.14)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_q7ybp")
+
+[node name="Mesh15" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -27.4)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh16" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -27.22)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh17" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -27.04)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh18" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -36.4, 2.1, -26.86)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_dg4bi")
+
+[node name="Mesh19" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.825336, -0.564642, 0, 0.564642, 0.825336, -36.4, 2.1, -27.04)
+material_override = ExtResource("3_ieowi")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_q7ybp")
+
+[node name="Sign1" type="Label3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -36.4, 2.62, -28)
+pixel_size = 0.006
+shaded = true
+double_sided = false
+modulate = Color(0.85, 0.85, 0.8, 1)
+outline_modulate = Color(0, 0, 0, 0.8)
+text = "SHIFT COUNT"
+font_size = 24
+outline_size = 6
+
+[node name="Mesh20" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.8, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh21" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.2, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh22" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.6, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh23" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh24" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.4, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh25" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.8, 2.4, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh26" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.2, 2.4, -39.7)
+material_override = ExtResource("5_cpm0g")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh27" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.8, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh28" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -49.2, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh29" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48.6, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh30" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -48, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh31" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -47.4, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh32" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.8, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh33" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.2, 1.7, -39.7)
+material_override = ExtResource("4_hkj2m")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_svst8")
+
+[node name="Mesh34" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -58.5, 0.8, -16.9)
+material_override = ExtResource("2_a3nxf")
+mesh = SubResource("BoxMesh_q82y3")
+
+[node name="Mesh35" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.28379, 0, -2.42908, 0, 1, 0, 1.16596, 0, -0.591229, -52, 0.006, -24)
+material_override = ExtResource("5_cpm0g")
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_dotww")
+
+[node name="Mesh36" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.436141, 0, -1.17365, 0, 1, 0, 0.670657, 0, 0.763248, -54, 0.006, -26)
+material_override = ExtResource("5_cpm0g")
+cast_shadow = 0
+mesh = SubResource("CylinderMesh_uunhk")
+
+[node name="HeCountsUs" type="Label3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -36.35, 3.3, -22)
+visible = false
+pixel_size = 0.006
+shaded = true
+double_sided = false
+modulate = Color(0.5, 0.03, 0.02, 1)
+outline_modulate = Color(0, 0, 0, 0.8)
+text = "HE COUNTS US"
+font_size = 64
+outline_size = 6
+
+[node name="Sign2" type="Label3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -48, 3, -16.3)
+pixel_size = 0.006
+shaded = true
+double_sided = false
+modulate = Color(0.85, 0.85, 0.8, 1)
+outline_modulate = Color(0, 0, 0, 0.8)
+text = "E. VOSS - SHIFT FOREMAN"
+font_size = 26
+outline_size = 6
+
+[node name="Mesh37" type="MeshInstance3D" parent="Sign2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.03)
+material_override = SubResource("StandardMaterial3D_dtgg1")
+mesh = SubResource("BoxMesh_bcs4k")
